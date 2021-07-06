@@ -8,19 +8,7 @@ namespace ClassTest
         static int[] possibleValues = new int[] { 0, -1, 1 };
         static void Main(string[] args)
         {
-
-            var theMatrix = new int[2];
-            //var x = 847288609443;
-
-            //for (long i = 0; i < x; i++)
-            //{
-            //    Console.WriteLine(i);
-            //}
-
-            //for (int index = 0; index < theMatrix.Length; index++)
-            //{
-            //    permutate(theMatrix, index);
-            //}
+            var theMatrix = new int[3];
             permutate(theMatrix);
         }
 
