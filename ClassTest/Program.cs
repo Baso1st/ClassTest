@@ -6,48 +6,38 @@ namespace ClassTest
     class Program
     {
         static int[] possibleValues = new int[] { 0, -1, 1 };
-        static int[] theMatrix = new int[2];
-        static int desiredSum = 6;
+        static int[] theMatrix = new int[4];
+        static int desiredSum = 3;
         static void Main(string[] args)
         {
-            //var theMatrix = new int[matrixSize];
             permutate();
         }
 
         static void permutate(int index = 0)
         {
-            if (index >= theMatrix.Length)
+            if (index < theMatrix.Length)
             {
-                //return false;
-                return;
+                foreach (var value in possibleValues)
+                {
+                    var totalSum = theMatrix.Sum(i => Math.Abs(i));
+
+                    if (totalSum > desiredSum || hasABadNeighbor(index))
+                    {
+                        theMatrix[index] = 0;
+                        return;
+                    }
+
+                    if (totalSum == desiredSum)
+                    {
+                        Output(theMatrix);
+                        return;
+                    }
+
+                    theMatrix[index] = value;
+                    permutate(index + 1);
+
+                }
             }
-
-            foreach (var value in possibleValues)
-            {
-                permutate(index + 1);
-                theMatrix[index] = value;
-                Output(theMatrix);
-
-                //var permutated = permutate(index + 1);
-                //if (!permutated)
-                //{
-                //    var totalSum = theMatrix.Sum(i => Math.Abs(i));
-
-                //    if (totalSum > desiredSum || hasABadNeighbor(index))
-                //    {
-                //        theMatrix[index] = 0;
-                //        return true;
-                //    }
-
-                //    if (totalSum == desiredSum)
-                //    {
-                //Output(theMatrix);
-                //        return true;
-                //    }
-                //}
-            }
-            //return true;
-            return;
         }
 
 
@@ -67,11 +57,6 @@ namespace ClassTest
             {
                 return false;
             }
-
-            //if (tempCondition() && index == 6)
-            //{
-            //    var x = 1;
-            //}
 
             var matrixSideLength = ((int)Math.Sqrt(theMatrix.Length));
 
