@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -8,18 +9,25 @@ namespace ClassTest
 {
     class OneDimension
     {
-        static int[] possibleValues = new int[] { 0, -1, 1 };
-        static int[] theMatrix = new int[9];
-        static int desiredSum = 6;
-        //static void Main(string[] args)
-        //{
-        //    permutate();
-        //}
-
+        static int[] possibleValues = new int[] { 0, -1};
+        static int[] theMatrix = new int[25];
+        static int desiredSum = 16;
+        static long counter = 0;
+        static bool foundSolution = false;
         public static void permutate(int index = 0)
         {
+            if (foundSolution)
+            {
+                return;
+            }
             foreach (var value in possibleValues)
             {
+                counter++;
+                if(counter % 100000 == 0)
+                {
+                    Console.WriteLine(counter);
+                    File.WriteAllText("TheCounter.txt", $"{counter}");
+                }
                 theMatrix[index] = value;
                 var totalSum = theMatrix.Sum(i => Math.Abs(i));
 
@@ -32,6 +40,7 @@ namespace ClassTest
                 if (totalSum == desiredSum)
                 {
                     Output(theMatrix);
+                    foundSolution = true;
                     return;
                 }
                 if ((index + 1) < theMatrix.Length)
@@ -45,13 +54,16 @@ namespace ClassTest
 
         public static void Output(int[] theMatrix)
         {
+            var solution = "";
             for (int i = 0; i < theMatrix.Length; i++)
             {
+                solution += $"{theMatrix[i]}, ";
                 //Console.Write($"{i}: {theMatrix[i]}, ");
                 //Console.Write($"{theMatrix[i]}, ");
-                System.Diagnostics.Debug.Write($"{theMatrix[i]}, ");
+                //System.Diagnostics.Debug.Write($"{theMatrix[i]}, ");
             }
-            System.Diagnostics.Debug.WriteLine("\n");
+            File.WriteAllText("theFile.txt", solution);
+            //System.Diagnostics.Debug.WriteLine("\n");
             //Console.WriteLine("\n");
         }
 
@@ -80,43 +92,6 @@ namespace ClassTest
             return !isLeftGood(x, y, theMatrixIn2D) || !isRightGood(x, y, theMatrixIn2D) || !isTopGood(x, y, theMatrixIn2D)
                 || !isBottomGood(x, y, theMatrixIn2D) || !isTopLeftGood(x, y, theMatrixIn2D) || !isTopRightGood(x, y, theMatrixIn2D)
                 || !isBottomLeftGood(x, y, theMatrixIn2D) || !isBottomRightGood(x, y, theMatrixIn2D);
-
-            //var rightIndex = index + 1;
-            //var topIndex = index + matrixSideLength;
-            //var bottomIndex = index - matrixSideLength;
-
-            //var topLeftIndex = index + matrixSideLength - 1;
-            //var topRightIndex = index + matrixSideLength + 1;
-            //var bottomLeftIndex = index - (matrixSideLength + 1);
-            //var bottomRightIndex = index - (matrixSideLength - 1);
-
-            //if (isAdjacentDifferent(index, leftIndex)
-            //    || isAdjacentDifferent(index, rightIndex)
-            //    || isAdjacentDifferent(index, topIndex)
-            //    || isAdjacentDifferent(index, bottomIndex))
-            //{
-            //    return true;
-            //}
-
-            //if (isItWithinArrayLimitAndNotZero(topLeftIndex) && theMatrix[index] == -1 && theMatrix[topLeftIndex] == -1)
-            //{
-            //    return true;
-            //}
-
-            //if (isItWithinArrayLimitAndNotZero(bottomRightIndex) && theMatrix[index] == -1 && theMatrix[bottomRightIndex] == -1)
-            //{
-            //    return true;
-            //}
-
-            //if (isItWithinArrayLimitAndNotZero(topRightIndex) && theMatrix[index] == 1 && theMatrix[topRightIndex] == 1)
-            //{
-            //    return true;
-            //}
-
-            //if (isItWithinArrayLimitAndNotZero(bottomLeftIndex) && theMatrix[index] == 1 && theMatrix[bottomLeftIndex] == 1)
-            //{
-            //    return true;
-            //}
 
         }
 
@@ -177,7 +152,8 @@ namespace ClassTest
             {
                 var adjacentX = x - 1;
                 var adjacentY = y + 1;
-                return theMatrixIn2D[adjacentX, adjacentY] == 0 || theMatrixIn2D[adjacentX, adjacentY] == theMatrixIn2D[x, y];
+                return theMatrixIn2D[adjacentX, adjacentY] == 0 || theMatrixIn2D[x, y] == 1
+                    || (theMatrixIn2D[x, y] == -1  && theMatrixIn2D[adjacentX, adjacentY] == 1);
             }
             catch (IndexOutOfRangeException)
             {
@@ -191,7 +167,8 @@ namespace ClassTest
             {
                 var adjacentX = x + 1;
                 var adjacentY = y + 1;
-                return theMatrixIn2D[adjacentX, adjacentY] == 0 || theMatrixIn2D[adjacentX, adjacentY] == theMatrixIn2D[x, y];
+                return theMatrixIn2D[adjacentX, adjacentY] == 0 || theMatrixIn2D[x, y] == -1
+                    || (theMatrixIn2D[x, y] == 1 && theMatrixIn2D[adjacentX, adjacentY] == -1);
             }
             catch (IndexOutOfRangeException)
             {
@@ -205,7 +182,8 @@ namespace ClassTest
             {
                 var adjacentX = x - 1;
                 var adjacentY = y - 1;
-                return theMatrixIn2D[adjacentX, adjacentY] == 0 || theMatrixIn2D[adjacentX, adjacentY] == theMatrixIn2D[x, y];
+                return theMatrixIn2D[adjacentX, adjacentY] == 0 || theMatrixIn2D[x, y] == -1
+                    || (theMatrixIn2D[x, y] == 1 && theMatrixIn2D[adjacentX, adjacentY] == -1);
             }
             catch (IndexOutOfRangeException)
             {
@@ -219,27 +197,13 @@ namespace ClassTest
             {
                 var adjacentX = x + 1;
                 var adjacentY = y - 1;
-                return theMatrixIn2D[adjacentX, adjacentY] == 0 || theMatrixIn2D[adjacentX, adjacentY] == theMatrixIn2D[x, y];
+                return theMatrixIn2D[adjacentX, adjacentY] == 0 || theMatrixIn2D[x, y] == 1
+                    || (theMatrixIn2D[x, y] == -1 && theMatrixIn2D[adjacentX, adjacentY] == 1);
             }
             catch (IndexOutOfRangeException)
             {
                 return true;
             }
         }
-
-
-        //public static bool isAdjacentDifferent(int index, int adjacentIndex)
-        //{
-        //    if (isItWithinArrayLimitAndNotZero(adjacentIndex) && theMatrix[adjacentIndex] != theMatrix[index])
-        //    {
-        //        return true;
-        //    }
-        //    return false;
-        //}
-
-        //public static bool isItWithinArrayLimitAndNotZero(int index)
-        //{
-        //    return index >= 0 && index < theMatrix.Length && theMatrix[index] != 0;
-        //}
     }
 }
