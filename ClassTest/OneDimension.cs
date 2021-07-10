@@ -9,8 +9,10 @@ namespace ClassTest
 {
     class OneDimension
     {
-        static int[] possibleValues = new int[] { 0, -1};
-        static int[] theMatrix = new int[25];
+        static int[] possibleValues = new int[] { 0, -1, 1};
+        static int matrixSideLength = 5;
+        static int[,] theMatrix = new int[matrixSideLength, matrixSideLength];
+        static int[] theMatrixAsArray = new int[matrixSideLength * matrixSideLength];
         static int desiredSum = 16;
         static long counter = 0;
         static bool foundSolution = false;
@@ -23,84 +25,89 @@ namespace ClassTest
             foreach (var value in possibleValues)
             {
                 counter++;
-                if(counter % 100000 == 0)
+                if(counter % 1000000 == 0)
                 {
-                    Console.WriteLine(counter);
-                    File.WriteAllText("TheCounter.txt", $"{counter}");
+                    var count = (counter / 1000000);
+                    Console.WriteLine(count);
+                    File.WriteAllText("TheCounter.txt", $"{count}");
                 }
-                theMatrix[index] = value;
-                var totalSum = theMatrix.Sum(i => Math.Abs(i));
+
+                insertIntoTheMatrixAndTheArray(index, value);
+                var totalSum = theMatrixAsArray.Sum(i => Math.Abs(i));
 
                 if (totalSum > desiredSum || hasABadNeighbor(index))
                 {
-                    theMatrix[index] = 0;
+                    insertIntoTheMatrixAndTheArray(index, 0);
                     return;
                 }
 
                 if (totalSum == desiredSum)
                 {
-                    Output(theMatrix);
+                    Output();
                     foundSolution = true;
                     return;
                 }
-                if ((index + 1) < theMatrix.Length)
+                if((index + 1) < theMatrixAsArray.Length)
                 {
                     permutate(index + 1);
                 }
             }
-            theMatrix[index] = 0;
+            insertIntoTheMatrixAndTheArray(index, 0);
         }
 
 
-        public static void Output(int[] theMatrix)
+        public static void insertIntoTheMatrixAndTheArray(int index, int value)
+        {
+            var x = (int)Math.Floor((decimal)(index / matrixSideLength));
+            var y = index % matrixSideLength;
+            theMatrixAsArray[index] = value;
+            theMatrix[x, y] = value;
+        }
+
+        public static void Output()
         {
             var solution = "";
-            for (int i = 0; i < theMatrix.Length; i++)
+            for (int i = 0; i < theMatrixAsArray.Length; i++)
             {
-                solution += $"{theMatrix[i]}, ";
-                //Console.Write($"{i}: {theMatrix[i]}, ");
-                //Console.Write($"{theMatrix[i]}, ");
-                //System.Diagnostics.Debug.Write($"{theMatrix[i]}, ");
+                solution += $"{theMatrixAsArray[i]}, ";
             }
             File.WriteAllText("theFile.txt", solution);
-            //System.Diagnostics.Debug.WriteLine("\n");
-            //Console.WriteLine("\n");
         }
 
         static bool hasABadNeighbor(int index)
         {
-            if (theMatrix[index] == 0)
+            if (theMatrixAsArray[index] == 0)
             {
                 return false;
             }
 
-            var matrixSideLength = ((int)Math.Sqrt(theMatrix.Length));
+            //var matrixSideLength = ((int)Math.Sqrt(theMatrixAsArray.Length));
 
-            var theMatrixIn2D = new int[matrixSideLength, matrixSideLength];
+            //var theMatrix = new int[matrixSideLength, matrixSideLength];
 
-            for (int j = 0; j < theMatrixIn2D.GetLength(0); j++)
-            {
-                for (int k = 0; k < theMatrixIn2D.GetLength(1); k++)
-                {
-                    theMatrixIn2D[j, k] = theMatrix[k + (j * matrixSideLength)];
-                }
-            }
+            //for (int j = 0; j < theMatrix.GetLength(0); j++)
+            //{
+            //    for (int k = 0; k < theMatrix.GetLength(1); k++)
+            //    {
+            //        theMatrix[j, k] = theMatrixAsArray[k + (j * matrixSideLength)];
+            //    }
+            //}
 
             var x = (int)Math.Floor((decimal)(index / matrixSideLength));
             var y = index % matrixSideLength;
 
-            return !isLeftGood(x, y, theMatrixIn2D) || !isRightGood(x, y, theMatrixIn2D) || !isTopGood(x, y, theMatrixIn2D)
-                || !isBottomGood(x, y, theMatrixIn2D) || !isTopLeftGood(x, y, theMatrixIn2D) || !isTopRightGood(x, y, theMatrixIn2D)
-                || !isBottomLeftGood(x, y, theMatrixIn2D) || !isBottomRightGood(x, y, theMatrixIn2D);
+            return !isLeftGood(x, y) || !isRightGood(x, y) || !isTopGood(x, y)
+                || !isBottomGood(x, y) || !isTopLeftGood(x, y) || !isTopRightGood(x, y)
+                || !isBottomLeftGood(x, y) || !isBottomRightGood(x, y);
 
         }
 
-        private static bool isLeftGood(int x, int y, int[,] theMatrixIn2D)
+        private static bool isLeftGood(int x, int y)
         {
             try
             {
                 var adjacentIndex = x - 1;
-                return theMatrixIn2D[adjacentIndex, y] == 0 || theMatrixIn2D[adjacentIndex, y] == theMatrixIn2D[x, y];
+                return theMatrix[adjacentIndex, y] == 0 || theMatrix[adjacentIndex, y] == theMatrix[x, y];
             }
             catch (IndexOutOfRangeException)
             {
@@ -108,12 +115,12 @@ namespace ClassTest
             }
         }
 
-        private static bool isRightGood(int x, int y, int[,] theMatrixIn2D)
+        private static bool isRightGood(int x, int y)
         {
             try 
             {
                 var adjacentIndex = x + 1;
-                return theMatrixIn2D[adjacentIndex, y] == 0 || theMatrixIn2D[adjacentIndex, y] == theMatrixIn2D[x, y];
+                return theMatrix[adjacentIndex, y] == 0 || theMatrix[adjacentIndex, y] == theMatrix[x, y];
             }
             catch (IndexOutOfRangeException)
             {
@@ -121,24 +128,24 @@ namespace ClassTest
             }
         }
 
-        private static bool isTopGood(int x, int y, int[,] theMatrixIn2D)
+        private static bool isTopGood(int x, int y)
         {
             try
             {
                 var adjacentIndex = y - 1;
-                return theMatrixIn2D[x, adjacentIndex] == 0 || theMatrixIn2D[x, adjacentIndex] == theMatrixIn2D[x, y];
+                return theMatrix[x, adjacentIndex] == 0 || theMatrix[x, adjacentIndex] == theMatrix[x, y];
             }
             catch (IndexOutOfRangeException)
             {
                 return true;
             }
         }
-        private static bool isBottomGood(int x, int y, int[,] theMatrixIn2D)
+        private static bool isBottomGood(int x, int y)
         {
             try
             {
                 var adjacentIndex = y + 1;
-                return theMatrixIn2D[x, adjacentIndex] == 0 || theMatrixIn2D[x, adjacentIndex] == theMatrixIn2D[x, y];
+                return theMatrix[x, adjacentIndex] == 0 || theMatrix[x, adjacentIndex] == theMatrix[x, y];
             }
             catch (IndexOutOfRangeException)
             {
@@ -146,14 +153,14 @@ namespace ClassTest
             }
         }
 
-        private static bool isTopLeftGood(int x, int y, int[,] theMatrixIn2D)
+        private static bool isTopLeftGood(int x, int y)
         {
             try
             {
                 var adjacentX = x - 1;
                 var adjacentY = y + 1;
-                return theMatrixIn2D[adjacentX, adjacentY] == 0 || theMatrixIn2D[x, y] == 1
-                    || (theMatrixIn2D[x, y] == -1  && theMatrixIn2D[adjacentX, adjacentY] == 1);
+                return theMatrix[adjacentX, adjacentY] == 0 || theMatrix[x, y] == 1
+                    || (theMatrix[x, y] == -1  && theMatrix[adjacentX, adjacentY] == 1);
             }
             catch (IndexOutOfRangeException)
             {
@@ -161,14 +168,14 @@ namespace ClassTest
             }
         }
 
-        private static bool isTopRightGood(int x, int y, int[,] theMatrixIn2D)
+        private static bool isTopRightGood(int x, int y)
         {
             try
             {
                 var adjacentX = x + 1;
                 var adjacentY = y + 1;
-                return theMatrixIn2D[adjacentX, adjacentY] == 0 || theMatrixIn2D[x, y] == -1
-                    || (theMatrixIn2D[x, y] == 1 && theMatrixIn2D[adjacentX, adjacentY] == -1);
+                return theMatrix[adjacentX, adjacentY] == 0 || theMatrix[x, y] == -1
+                    || (theMatrix[x, y] == 1 && theMatrix[adjacentX, adjacentY] == -1);
             }
             catch (IndexOutOfRangeException)
             {
@@ -176,14 +183,14 @@ namespace ClassTest
             }
         }
 
-        private static bool isBottomLeftGood(int x, int y, int[,] theMatrixIn2D)
+        private static bool isBottomLeftGood(int x, int y)
         {
             try
             {
                 var adjacentX = x - 1;
                 var adjacentY = y - 1;
-                return theMatrixIn2D[adjacentX, adjacentY] == 0 || theMatrixIn2D[x, y] == -1
-                    || (theMatrixIn2D[x, y] == 1 && theMatrixIn2D[adjacentX, adjacentY] == -1);
+                return theMatrix[adjacentX, adjacentY] == 0 || theMatrix[x, y] == -1
+                    || (theMatrix[x, y] == 1 && theMatrix[adjacentX, adjacentY] == -1);
             }
             catch (IndexOutOfRangeException)
             {
@@ -191,14 +198,14 @@ namespace ClassTest
             }
         }
 
-        private static bool isBottomRightGood(int x, int y, int[,] theMatrixIn2D)
+        private static bool isBottomRightGood(int x, int y)
         {
             try
             {
                 var adjacentX = x + 1;
                 var adjacentY = y - 1;
-                return theMatrixIn2D[adjacentX, adjacentY] == 0 || theMatrixIn2D[x, y] == 1
-                    || (theMatrixIn2D[x, y] == -1 && theMatrixIn2D[adjacentX, adjacentY] == 1);
+                return theMatrix[adjacentX, adjacentY] == 0 || theMatrix[x, y] == 1
+                    || (theMatrix[x, y] == -1 && theMatrix[adjacentX, adjacentY] == 1);
             }
             catch (IndexOutOfRangeException)
             {
