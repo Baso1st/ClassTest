@@ -1,15 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ClassTest
 {
     class OneDimension
     {
-        static int[] possibleValues = new int[] { 0, -1, 1};
+        static int[] possibleValues = new int[] { 0, -1};
         static int matrixSideLength = 5;
         static int[,] theMatrix = new int[matrixSideLength, matrixSideLength];
         static int[] theMatrixAsArray = new int[matrixSideLength * matrixSideLength];
@@ -25,7 +22,7 @@ namespace ClassTest
             foreach (var value in possibleValues)
             {
                 counter++;
-                if(counter % 1000000 == 0)
+                if (counter % 1000000 == 0)
                 {
                     var count = (counter / 1000000);
                     Console.WriteLine(count);
@@ -33,7 +30,7 @@ namespace ClassTest
                 }
 
                 insertIntoTheMatrixAndTheArray(index, value);
-                var totalSum = theMatrixAsArray.Sum(i => Math.Abs(i));
+                var totalSum = Sum();
 
                 if (totalSum > desiredSum || hasABadNeighbor(index))
                 {
@@ -44,10 +41,10 @@ namespace ClassTest
                 if (totalSum == desiredSum)
                 {
                     Output();
-                    foundSolution = true;
-                    return;
+                    //foundSolution = true;
+                    //return;
                 }
-                if((index + 1) < theMatrixAsArray.Length)
+                if ((index + 1) < theMatrixAsArray.Length)
                 {
                     permutate(index + 1);
                 }
@@ -71,28 +68,17 @@ namespace ClassTest
             {
                 solution += $"{theMatrixAsArray[i]}, ";
             }
-            File.WriteAllText("theFile.txt", solution);
+            solution += "\n";
+            //File.AppendAllText("theFile.txt", solution);
         }
 
         static bool hasABadNeighbor(int index)
         {
+            return false;
             if (theMatrixAsArray[index] == 0)
             {
                 return false;
             }
-
-            //var matrixSideLength = ((int)Math.Sqrt(theMatrixAsArray.Length));
-
-            //var theMatrix = new int[matrixSideLength, matrixSideLength];
-
-            //for (int j = 0; j < theMatrix.GetLength(0); j++)
-            //{
-            //    for (int k = 0; k < theMatrix.GetLength(1); k++)
-            //    {
-            //        theMatrix[j, k] = theMatrixAsArray[k + (j * matrixSideLength)];
-            //    }
-            //}
-
             var x = (int)Math.Floor((decimal)(index / matrixSideLength));
             var y = index % matrixSideLength;
 
@@ -100,6 +86,19 @@ namespace ClassTest
                 || !isBottomGood(x, y) || !isTopLeftGood(x, y) || !isTopRightGood(x, y)
                 || !isBottomLeftGood(x, y) || !isBottomRightGood(x, y);
 
+        }
+
+        private static int Sum()
+        {
+            int totalSum1 = 0;
+            int totalSum2 = 0;
+            for (int i = 0; (i + 1) < theMatrixAsArray.Length; i += 2)
+            {
+                totalSum1 += Math.Abs(theMatrixAsArray[i + 0]);
+                totalSum2 += Math.Abs(theMatrixAsArray[i + 1]);
+            }
+            totalSum1 += totalSum2 + Math.Abs(theMatrixAsArray[theMatrixAsArray.Length - 1]);
+            return totalSum1;
         }
 
         private static bool isLeftGood(int x, int y)

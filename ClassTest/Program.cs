@@ -10,12 +10,16 @@ namespace ClassTest
     {
         static void Main(string[] args)
         {
+
+
+
             try
             {
                 var sw = Stopwatch.StartNew();
                 OneDimension.permutate();
                 sw.Stop();
                 File.WriteAllText("theEnd.txt", sw.Elapsed.ToString());
+                Console.ReadLine();
             }
             catch (Exception e)
             {
