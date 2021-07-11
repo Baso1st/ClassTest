@@ -6,54 +6,64 @@ namespace ClassTest
 {
     class OneDimension
     {
-        static int[] possibleValues = new int[] { 0, -1};
+        static int[] possibleValues = new int[] { 0, -1, 1};
         static int matrixSideLength = 5;
         static int[,] theMatrix = new int[matrixSideLength, matrixSideLength];
         static int[] theMatrixAsArray = new int[matrixSideLength * matrixSideLength];
         static int desiredSum = 16;
         static long counter = 0;
         static bool foundSolution = false;
+        static int totalSum = 0;
         public static void permutate(int index = 0)
         {
-            if (foundSolution)
+            if (foundSolution || totalSum > desiredSum)
             {
                 return;
             }
+
             foreach (var value in possibleValues)
             {
                 counter++;
                 if (counter % 1000000 == 0)
                 {
                     var count = (counter / 1000000);
-                    Console.WriteLine(count);
+                    //Console.WriteLine(count);
                     File.WriteAllText("TheCounter.txt", $"{count}");
                 }
 
-                insertIntoTheMatrixAndTheArray(index, value);
-                var totalSum = Sum();
+                InsertIntoTheMatrixAndTheArray(index, value);
 
-                if (totalSum > desiredSum || hasABadNeighbor(index))
+                if (hasABadNeighbor(index))
                 {
-                    insertIntoTheMatrixAndTheArray(index, 0);
-                    return;
+                    continue;
                 }
+
+                totalSum = Sum();
 
                 if (totalSum == desiredSum)
                 {
                     Output();
-                    //foundSolution = true;
-                    //return;
+                    foundSolution = true;
+                    return;
                 }
                 if ((index + 1) < theMatrixAsArray.Length)
                 {
                     permutate(index + 1);
                 }
             }
-            insertIntoTheMatrixAndTheArray(index, 0);
+            InsertIntoTheMatrixAndTheArray(index, 0);
         }
 
+        public static int GetThePreviousValue(int value)
+        {
+            if (value == 1)
+            {
+                return -1;
+            }
+            return 0;
+        }
 
-        public static void insertIntoTheMatrixAndTheArray(int index, int value)
+        public static void InsertIntoTheMatrixAndTheArray(int index, int value)
         {
             var x = (int)Math.Floor((decimal)(index / matrixSideLength));
             var y = index % matrixSideLength;
@@ -69,12 +79,11 @@ namespace ClassTest
                 solution += $"{theMatrixAsArray[i]}, ";
             }
             solution += "\n";
-            //File.AppendAllText("theFile.txt", solution);
+            File.AppendAllText("theFile.txt", solution);
         }
 
         static bool hasABadNeighbor(int index)
         {
-            return false;
             if (theMatrixAsArray[index] == 0)
             {
                 return false;
