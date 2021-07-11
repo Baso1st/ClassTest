@@ -21,6 +21,11 @@ namespace ClassTest
                 return;
             }
 
+            if ((theMatrixAsArray.Length - index) < (desiredSum - totalSum))
+            {
+                return;
+            }
+
             foreach (var value in possibleValues)
             {
                 counter++;
@@ -43,7 +48,7 @@ namespace ClassTest
                 if (totalSum == desiredSum)
                 {
                     Output();
-                    foundSolution = true;
+                    //foundSolution = true;
                     return;
                 }
                 if ((index + 1) < theMatrixAsArray.Length)
